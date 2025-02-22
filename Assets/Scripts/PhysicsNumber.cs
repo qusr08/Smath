@@ -17,7 +17,7 @@ public class PhysicsNumber : MonoBehaviour {
 	[SerializeField] private PolygonCollider2D operationPolygonCollider;
 	[SerializeField] private GameObject operationGameObject;
 	[Space]
-	[SerializeField, Range(0, 9)] private int _value;
+	[SerializeField, Range(-1, 9)] private int _value;
 	[SerializeField] private Operation _operation;
 	[SerializeField, Range(0f, 1f)] private float operationGap;
 
@@ -28,19 +28,20 @@ public class PhysicsNumber : MonoBehaviour {
 		get => _value;
 		set {
 			// Make sure the value stays within the valid range
-			_value = Mathf.Clamp(value, 0, 9);
+			_value = Mathf.Clamp(value, -1, 9);
 
 			// Set the sprite of this number based on the new value
-			numberSpriteRenderer.sprite = numberSprites[_value];
+			numberSpriteRenderer.sprite = numberSprites[_value + 1];
 
 			// Refresh the polygon collider since the sprite was updated
-			Destroy(numberPolygonCollider);
-			numberPolygonCollider = gameObject.AddComponent<PolygonCollider2D>( );
+			// Only update the sprite and the collider if there is a number
+			numberPolygonCollider.enabled = (_value >= 0);
+			if (_value >= 0) {
+				Destroy(numberPolygonCollider);
+				numberPolygonCollider = gameObject.AddComponent<PolygonCollider2D>( );
+			}
 
-			// Adjust the operation so it is next to the number
-			// Some of the numbers are different widths
-			float offsetX = operationSpriteRenderer.sprite.bounds.extents.x + numberSpriteRenderer.sprite.bounds.extents.x + operationGap;
-			operationGameObject.transform.position = new Vector3(transform.position.x - offsetX, transform.position.y, 0);
+			UpdateOperationOffset( );
 		}
 	}
 
@@ -61,10 +62,12 @@ public class PhysicsNumber : MonoBehaviour {
 
 			// Refresh the polygon collider since the sprite was updated
 			// Only do this if there is an operation
-			operationPolygonCollider.enabled = false;
+			operationPolygonCollider.enabled = (_operation != Operation.NONE);
 			if (_operation != Operation.NONE) {
 				Destroy(operationPolygonCollider);
 				operationPolygonCollider = operationGameObject.AddComponent<PolygonCollider2D>( );
+
+				UpdateOperationOffset( );
 			}
 		}
 	}
@@ -72,5 +75,23 @@ public class PhysicsNumber : MonoBehaviour {
 	private void Start ( ) {
 		Value = Value;
 		Operation = Operation;
+	}
+
+	private void UpdateOperationOffset ( ) {
+		// If there is no operation, then do not adjust the offset of it because it does not matter
+		if (Operation == Operation.NONE) {
+			return;
+		}
+
+		// If there is no value, then the operation should be right in the center of the object
+		if (Value == -1) {
+			operationGameObject.transform.localPosition = Vector3.zero;
+			return;
+		}
+
+		// Adjust the operation so it is next to the number
+		// Some of the numbers are different widths
+		float offsetX = operationSpriteRenderer.sprite.bounds.extents.x + numberSpriteRenderer.sprite.bounds.extents.x + operationGap;
+		operationGameObject.transform.localPosition = new Vector3(-offsetX, 0, 0);
 	}
 }
