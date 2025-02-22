@@ -7,6 +7,8 @@ public enum Operation {
 }
 
 public class PhysicsNumber : MonoBehaviour {
+	[SerializeField] private MousePoint mousePoint;
+	[Space]
 	[SerializeField] private List<Sprite> numberSprites;
 	[SerializeField] private List<Sprite> operationSprites;
 	[SerializeField] private List<Color> operationColors;
@@ -16,10 +18,16 @@ public class PhysicsNumber : MonoBehaviour {
 	[SerializeField] private SpriteRenderer operationSpriteRenderer;
 	[SerializeField] private PolygonCollider2D operationPolygonCollider;
 	[SerializeField] private GameObject operationGameObject;
+	[SerializeField] private Rigidbody2D _rigidBody2D;
 	[Space]
 	[SerializeField, Range(-1, 9)] private int _value;
 	[SerializeField] private Operation _operation;
 	[SerializeField, Range(0f, 1f)] private float operationGap;
+
+	/// <summary>
+	/// The rigidbody of this physics number
+	/// </summary>
+	public Rigidbody2D RigidBody2D => _rigidBody2D;
 
 	/// <summary>
 	/// The current value of this number
@@ -72,11 +80,26 @@ public class PhysicsNumber : MonoBehaviour {
 		}
 	}
 
+	private void Awake ( ) {
+		mousePoint = FindObjectOfType<MousePoint>( );
+	}
+
 	private void Start ( ) {
 		Value = Value;
 		Operation = Operation;
 	}
 
+	private void OnMouseDown ( ) {
+		mousePoint.LockedPhysicsNumber = this;
+	}
+
+	private void OnMouseUp ( ) {
+		mousePoint.LockedPhysicsNumber = null;
+	}
+
+	/// <summary>
+	/// Update the offset of the operation object from the center of this game object
+	/// </summary>
 	private void UpdateOperationOffset ( ) {
 		// If there is no operation, then do not adjust the offset of it because it does not matter
 		if (Operation == Operation.NONE) {

@@ -48,6 +48,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9154ca39ebaa25f42b926d59849b61df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mousePoint: {fileID: 0}
   numberSprites:
   - {fileID: 0}
   - {fileID: -508219990, guid: 323463c855b38df488fa2b8b4064e73e, type: 3}
@@ -77,6 +78,7 @@ MonoBehaviour:
   operationSpriteRenderer: {fileID: 5029642933805411531}
   operationPolygonCollider: {fileID: 3554788955735084191}
   operationGameObject: {fileID: 3489044422165606993}
+  _rigidBody2D: {fileID: 7467577934022662456}
   _value: 0
   _operation: 0
   operationGap: 0.2
@@ -205,7 +207,7 @@ Rigidbody2D:
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
-  m_Mass: 1
+  m_Mass: 0.0001
   m_LinearDrag: 0
   m_AngularDrag: 0.05
   m_GravityScale: 1
