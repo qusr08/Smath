@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CameraBounds : MonoBehaviour {
+public class CameraController : MonoBehaviour {
 	[SerializeField] private Transform topBounds;
 	[SerializeField] private Transform rightBounds;
 	[SerializeField] private Transform bottomBounds;
@@ -32,4 +32,34 @@ public class CameraBounds : MonoBehaviour {
 		bottomBounds.localScale = new Vector3(CameraWidth + 12f, 6f, 1f);
 		leftBounds.localScale = new Vector3(6f, CameraHeight + 12f, 1f);
 	}
+
+	/// <summary>
+	/// Shake the camera for a certain duration
+	/// </summary>
+	/// <param name="duration">The time in seconds for the camera to be shaking</param>
+	public void ShakeCamera (float duration) {
+		StopAllCoroutines( );
+		StartCoroutine(IShakeCamera(duration));
+	}
+	
+	private IEnumerator IShakeCamera (float duration) {
+		// https://www.youtube.com/watch?v=lq7y0thMN1M&ab_channel=TheTrueDuck
+		float elapsed = 0.0f;
+		float currentMagnitude = 1f;
+
+		while (elapsed < duration) {
+			float x = (Random.value - 0.5f) * currentMagnitude;
+			float y = (Random.value - 0.5f) * currentMagnitude;
+
+			mainCamera.transform.localPosition = new Vector3(x, y, 0);
+
+			elapsed += Time.deltaTime;
+			currentMagnitude = (1 - (elapsed / duration)) * (1 - (elapsed / duration));
+
+			yield return null;
+		}
+
+		mainCamera.transform.localPosition = Vector3.zero;
+	}
+
 }

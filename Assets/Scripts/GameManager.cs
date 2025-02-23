@@ -5,7 +5,8 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour {
 	[SerializeField] private GameObject physicsNumberPrefab;
-	[SerializeField] private CameraBounds cameraBounds;
+	[SerializeField] private GameObject smashParticleSystemPrefab;
+	[SerializeField] private CameraController cameraController;
 	[SerializeField] private TextMeshProUGUI targetText;
 	[Space]
 	[SerializeField] private int _targetNumber;
@@ -58,8 +59,8 @@ public class GameManager : MonoBehaviour {
 
 		// Generate a list of all possible spawns for the physics numbers (so no two numbers spawn on top of one another)
 		List<Vector3> possibleSpawns = new List<Vector3>( );
-		float halfCameraWidth = cameraBounds.CameraWidth / 2;
-		float halfCameraHeight = cameraBounds.CameraHeight / 2;
+		float halfCameraWidth = cameraController.CameraWidth / 2;
+		float halfCameraHeight = cameraController.CameraHeight / 2;
 
 		// Loop through all possible locations on the camera for physics numbers to spawn and check to see if they are good
 		for (int x = (int) -halfCameraWidth; x <= (int) halfCameraWidth; x += physicsNumberSpawnGrid) {
@@ -155,6 +156,9 @@ public class GameManager : MonoBehaviour {
 		// Set the original physics number to have no operation and just the value
 		physicsNumber.Operation = Operation.NONE;
 
+		// Spawn in a particle system
+		SpawnSmashParticleSystem(physicsNumber.OperationSpriteRenderer.color, splitPosition - Vector3.right);
+
 		if (physicsNumber.Value == TargetNumber) {
 			OnWin( );
 		}
@@ -194,6 +198,9 @@ public class GameManager : MonoBehaviour {
 			// If it does have a value, then use that operation on the other physics number
 			if (physicsNumber2.Value == 0) {
 				physicsNumber1.Operation = physicsNumber2.Operation;
+
+				// Spawn in a particle system
+				SpawnSmashParticleSystem(physicsNumber1.OperationSpriteRenderer.color, physicsNumber1.transform.position);
 			} else {
 				switch (physicsNumber2.Operation) {
 					case Operation.PLUS:
@@ -222,6 +229,9 @@ public class GameManager : MonoBehaviour {
 				// Reset the operation after it was used
 				physicsNumber1.Operation = Operation.NONE;
 
+				// Spawn in a particle system
+				SpawnSmashParticleSystem(physicsNumber1.OperationSpriteRenderer.color, physicsNumber1.transform.position);
+
 				// If the physics number has no more value (it went negative or reached 0) then destroy it
 				// For right now, we want no negative numbers
 				// If it is not 0, then check to see if we have reached the target number
@@ -239,6 +249,9 @@ public class GameManager : MonoBehaviour {
 			// If it does have a value, then use that operation with the physics number
 			if (physicsNumber1.Value == 0) {
 				physicsNumber2.Operation = physicsNumber1.Operation;
+
+				// Spawn in a particle system
+				SpawnSmashParticleSystem(physicsNumber2.OperationSpriteRenderer.color, physicsNumber2.transform.position);
 			} else {
 				switch (physicsNumber1.Operation) {
 					case Operation.PLUS:
@@ -267,6 +280,9 @@ public class GameManager : MonoBehaviour {
 				// Reset the operation after it was used
 				physicsNumber2.Operation = Operation.NONE;
 
+				// Spawn in a particle system
+				SpawnSmashParticleSystem(physicsNumber2.OperationSpriteRenderer.color, physicsNumber2.transform.position);
+
 				// If the physics number has no more value (it went negative or reached 0) then destroy it
 				// For right now, we want no negative numbers
 				// If it is not 0, then check to see if we have reached the target number
@@ -282,5 +298,19 @@ public class GameManager : MonoBehaviour {
 		}
 
 		return true;
+	}
+
+	/// <summary>
+	/// Spawn a particle system for when two physics numbers smash together (or apart)
+	/// </summary>
+	/// <param name="color">The color to set the particle system</param>
+	/// <param name="position">The position to spawn the particles at</param>
+	private void SpawnSmashParticleSystem (Color color, Vector3 position) {
+		ParticleSystem system = Instantiate(smashParticleSystemPrefab, position, Quaternion.identity).GetComponent<ParticleSystem>();
+		ParticleSystem.MainModule mainSystem = system.main;
+		mainSystem.startColor = color;
+		system.Play( );
+
+		cameraController.ShakeCamera(1f);
 	}
 }

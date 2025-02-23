@@ -35,6 +35,11 @@ public class PhysicsNumber : MonoBehaviour {
 	public Rigidbody2D RigidBody2D => _rigidBody2D;
 
 	/// <summary>
+	/// The operation sprite renderer of this physics number
+	/// </summary>
+	public SpriteRenderer OperationSpriteRenderer { get => operationSpriteRenderer; private set => operationSpriteRenderer = value; }
+
+	/// <summary>
 	/// The current value of this number
 	/// </summary>
 	public int Value {
