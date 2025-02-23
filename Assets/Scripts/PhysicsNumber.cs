@@ -24,6 +24,7 @@ public class PhysicsNumber : MonoBehaviour {
 	[SerializeField, Range(-1, 999)] private int _value;
 	[SerializeField] private Operation _operation;
 	[SerializeField, Range(0f, 1f)] private float digitGap = 0.2f;
+	[SerializeField, Range(0f, 10f)] private float smashSpeed = 4f;
 
 	/// <summary>
 	/// The rigidbody of this physics number
@@ -113,6 +114,15 @@ public class PhysicsNumber : MonoBehaviour {
 	private void Start ( ) {
 		Value = Value;
 		Operation = Operation;
+	}
+
+	private void OnCollisionEnter2D (Collision2D collision) {
+		// If this physics number speed is moving too slow to smash, then do nothing
+		if (RigidBody2D.velocity.magnitude < smashSpeed) {
+			return;
+		}
+
+		Debug.Log("Smash");
 	}
 
 	private void OnMouseDown ( ) {

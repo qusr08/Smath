@@ -47,8 +47,6 @@ public class MousePoint : MonoBehaviour {
 		// Update the mouse follower position
 		mouseWorldPositionFollower = Vector3.SmoothDamp(mouseWorldPositionFollower, mouseWorldPosition, ref mouseWorldVelocity, 0.2f, Mathf.Infinity, Time.deltaTime);
 
-		Debug.Log(mouseWorldVelocity);
-
 		// Set this mouse point to the position of the mouse
 		transform.position = mouseWorldPosition;
 	}

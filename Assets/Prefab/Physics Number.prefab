@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6364332268705332975}
   - component: {fileID: 7302686006471489400}
   - component: {fileID: 7467577934022662456}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Physics Number
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -92,6 +92,7 @@ MonoBehaviour:
   _value: 0
   _operation: 0
   digitGap: 0.2
+  smashSpeed: 3
 --- !u!50 &7467577934022662456
 Rigidbody2D:
   serializedVersion: 4
@@ -130,7 +131,7 @@ GameObject:
   - component: {fileID: 8808337169355687706}
   - component: {fileID: 5029642933805411531}
   - component: {fileID: 3554788955735084191}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Operation
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -280,7 +281,7 @@ GameObject:
   - component: {fileID: 8071841294582482467}
   - component: {fileID: 5561563119004635375}
   - component: {fileID: 8069066103788129564}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Digit 3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -430,7 +431,7 @@ GameObject:
   - component: {fileID: 8569693674120232088}
   - component: {fileID: 858249192290292466}
   - component: {fileID: 4655430299098853446}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Digit 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -580,7 +581,7 @@ GameObject:
   - component: {fileID: 5857364438464127235}
   - component: {fileID: 540076513591719146}
   - component: {fileID: 6138849301885141430}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Digit 2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
