@@ -143,7 +143,7 @@ public class PhysicsNumber : MonoBehaviour {
 			gameManager.MergePhysicsNumbers(this, collision.transform.GetComponent<PhysicsNumber>( ));
 		} else if ((LayerMask.GetMask("Bounds") & (1 << collision.gameObject.layer)) > 0) {
 			Debug.Log("Split");
-			gameManager.SplitPhysicsNumber(this);
+			// gameManager.SplitPhysicsNumber(this);
 		}
 	}
 
