@@ -19,8 +19,8 @@ public class GameManager : MonoBehaviour {
 	[SerializeField, Range(1, 5)] private int redHerringMax = 3;
 	[SerializeField, Range(1, 5)] private int physicsNumberSpawnGrid = 2;
 
-	private List<int> spawnedPhysicsNumberValues = new List<int>( );
-	private List<Operation> spawnedPhysicsNumberOperations = new List<Operation>( );
+	public List<int> SpawnedPhysicsNumberValues = new List<int>( );
+	public List<Operation> SpawnedPhysicsNumberOperations = new List<Operation>( );
 
 	/// <summary>
 	/// The minimum value of the target number 
@@ -88,6 +88,20 @@ public class GameManager : MonoBehaviour {
 			}
 		}
 
+		if (SpawnedPhysicsNumberValues.Count != 0) {
+			for (int i = 0; i < SpawnedPhysicsNumberValues.Count; i++) {
+				// Get a random spawn position for the physics number
+				int randomSpawnIndex = Random.Range(0, possibleSpawns.Count);
+				Vector3 spawnPosition = possibleSpawns[randomSpawnIndex];
+				possibleSpawns.RemoveAt(randomSpawnIndex);
+
+				// Generate a new physics number based on the properties above
+				PhysicsNumber physicsNumber = Instantiate(physicsNumberPrefab, spawnPosition, Quaternion.identity).GetComponent<PhysicsNumber>( );
+				physicsNumber.Operation = SpawnedPhysicsNumberOperations[i];
+				physicsNumber.Value = SpawnedPhysicsNumberValues[i];
+			}
+		}
+
 		// Calculate each of the steps to get to the target number
 		for (int i = 0; i <= randomStepCount + redHerringCount; i++) {
 			// Get a random spawn position for the physics number
@@ -104,7 +118,7 @@ public class GameManager : MonoBehaviour {
 				// Make sure no red herrings are equal to the final solution
 				do {
 					physicsNumber.Value = Random.Range(TargetNumberMin, TargetNumberMax + 1);
-				} while (spawnedPhysicsNumberValues.Contains(physicsNumber.Value));
+				} while (SpawnedPhysicsNumberValues.Contains(physicsNumber.Value));
 
 				// Generate a random operation to apply to that number
 				float operationChance = Random.Range(0f, 1f);
@@ -119,7 +133,7 @@ public class GameManager : MonoBehaviour {
 				int randomNextNumber;
 				do {
 					randomNextNumber = Random.Range(TargetNumberMin, TargetNumberMax + 1);
-				} while (randomNextNumber == sum || spawnedPhysicsNumberValues.Contains(randomNextNumber));
+				} while (randomNextNumber == sum || SpawnedPhysicsNumberValues.Contains(randomNextNumber));
 
 				// Calculate the difference between the sum and the new number
 				// Then add the difference to the sum
@@ -136,8 +150,8 @@ public class GameManager : MonoBehaviour {
 			}
 
 			// Add the values of the latest spawned physics number to the lists
-			spawnedPhysicsNumberValues.Add(physicsNumber.Value);
-			spawnedPhysicsNumberOperations.Add(physicsNumber.Operation);
+			SpawnedPhysicsNumberValues.Add(physicsNumber.Value);
+			SpawnedPhysicsNumberOperations.Add(physicsNumber.Operation);
 		}
 
 		// Set the target number once the last step has been generated

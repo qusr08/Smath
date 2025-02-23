@@ -52,16 +52,15 @@ public class MenuManager : MonoBehaviour {
 
 					creditsText.gameObject.SetActive(true);
 					winText.gameObject.SetActive(false);
+					cameraBoundsContainer.SetActive(false);
 
 					targetNumberText.color = new Color(136 / 255f, 98 / 255f, 235 / 255f);
 					targetNumberText.fontStyle = FontStyles.Underline;
 					targetNumberText.text = "smath";
 
-					cameraBoundsContainer.SetActive(false);
 
 					break;
 				case MenuState.GAME:
-					creditsText.gameObject.SetActive(false);
 					targetNumberText.color = new Color(156 / 255f, 150 / 255f, 218 / 255f);
 					targetNumberText.fontStyle = FontStyles.Normal;
 
@@ -70,7 +69,9 @@ public class MenuManager : MonoBehaviour {
 					playButton.IsHidden = true;
 					playButtonText.text = "play again";
 
+					creditsText.gameObject.SetActive(false);
 					cameraBoundsContainer.SetActive(true);
+					winText.gameObject.SetActive(false);
 
 					// Generate the game's target number and start the game
 					gameManager.GenerateTargetNumber( );
