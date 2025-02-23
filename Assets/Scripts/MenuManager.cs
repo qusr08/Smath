@@ -58,6 +58,8 @@ public class MenuManager : MonoBehaviour {
 					targetNumberText.fontStyle = FontStyles.Underline;
 					targetNumberText.text = "smath";
 
+					gameManager.SpawnedPhysicsNumberOperations.Clear( );
+					gameManager.SpawnedPhysicsNumberValues.Clear( );
 
 					break;
 				case MenuState.GAME:
@@ -81,6 +83,9 @@ public class MenuManager : MonoBehaviour {
 					winText.gameObject.SetActive(true);
 
 					playButton.IsHidden = false;
+
+					gameManager.SpawnedPhysicsNumberOperations.Clear( );
+					gameManager.SpawnedPhysicsNumberValues.Clear( );
 
 					break;
 			}

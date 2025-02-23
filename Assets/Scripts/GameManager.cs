@@ -19,8 +19,8 @@ public class GameManager : MonoBehaviour {
 	[SerializeField, Range(1, 5)] private int redHerringMax = 3;
 	[SerializeField, Range(1, 5)] private int physicsNumberSpawnGrid = 2;
 
-	public List<int> SpawnedPhysicsNumberValues = new List<int>( );
-	public List<Operation> SpawnedPhysicsNumberOperations = new List<Operation>( );
+	[HideInInspector] public List<int> SpawnedPhysicsNumberValues = new List<int>( );
+	[HideInInspector] public List<Operation> SpawnedPhysicsNumberOperations = new List<Operation>( );
 
 	/// <summary>
 	/// The minimum value of the target number 
@@ -88,6 +88,7 @@ public class GameManager : MonoBehaviour {
 			}
 		}
 
+		// If there were already some physics numbers spawned, just respawn the same ones
 		if (SpawnedPhysicsNumberValues.Count != 0) {
 			for (int i = 0; i < SpawnedPhysicsNumberValues.Count; i++) {
 				// Get a random spawn position for the physics number
@@ -95,11 +96,13 @@ public class GameManager : MonoBehaviour {
 				Vector3 spawnPosition = possibleSpawns[randomSpawnIndex];
 				possibleSpawns.RemoveAt(randomSpawnIndex);
 
-				// Generate a new physics number based on the properties above
+				// Generate a new physics number based on the properties in the lists
 				PhysicsNumber physicsNumber = Instantiate(physicsNumberPrefab, spawnPosition, Quaternion.identity).GetComponent<PhysicsNumber>( );
 				physicsNumber.Operation = SpawnedPhysicsNumberOperations[i];
 				physicsNumber.Value = SpawnedPhysicsNumberValues[i];
 			}
+
+			return;
 		}
 
 		// Calculate each of the steps to get to the target number
