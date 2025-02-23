@@ -25,6 +25,7 @@ public class PhysicsNumber : MonoBehaviour {
 	[SerializeField, Range(0, 999)] private int _value;
 	[SerializeField] private Operation _operation;
 	public bool CanSmash;
+	// public string CalculationPath = "";
 	[SerializeField, Range(0f, 1f)] private float digitGap = 0.2f;
 	[SerializeField, Range(0f, 10f)] private float smashSpeed = 4f;
 
@@ -39,6 +40,11 @@ public class PhysicsNumber : MonoBehaviour {
 	public int Value {
 		get => _value;
 		set {
+			// If the previous value was 0, then set the calculation path to whatever the new number is
+			// if (_value == 0 && value != 0) {
+				// CalculationPath = $"{value}";
+			// }
+
 			// Make sure the value stays within the valid range
 			_value = Mathf.Clamp(value, 0, 999);
 
@@ -139,11 +145,12 @@ public class PhysicsNumber : MonoBehaviour {
 		// If the collision was with another physics number, then try to merge the two of them together
 		// If the collision was with the bounds of the screen, try to break this number apart
 		if ((LayerMask.GetMask("Physics Number") & (1 << collision.gameObject.layer)) > 0) {
-			Debug.Log("Smash");
 			gameManager.MergePhysicsNumbers(this, collision.transform.GetComponent<PhysicsNumber>( ));
 		} else if ((LayerMask.GetMask("Bounds") & (1 << collision.gameObject.layer)) > 0) {
-			Debug.Log("Split");
-			// gameManager.SplitPhysicsNumber(this);
+			// We don't want splitting to make the random puzzles really easy
+			// If we used set puzzles then we could add splitting back in
+			// Need to fix that somehow
+			gameManager.SplitPhysicsNumber(this);
 		}
 	}
 

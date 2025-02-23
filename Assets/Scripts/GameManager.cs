@@ -17,6 +17,9 @@ public class GameManager : MonoBehaviour {
 	[SerializeField, Range(1, 5)] private int redHerringMax = 3;
 	[SerializeField, Range(1, 5)] private int physicsNumberSpawnGrid = 2;
 
+	private List<int> spawnedPhysicsNumberValues = new List<int>( );
+	private List<Operation> spawnedPhysicsNumberOperations = new List<Operation>( );
+
 	/// <summary>
 	/// The current target number of the game
 	/// </summary>
@@ -25,12 +28,18 @@ public class GameManager : MonoBehaviour {
 		private set {
 			_targetNumber = value;
 
-			targetText.text = "= " + _targetNumber;
+			targetText.text = "=" + _targetNumber;
 		}
 	}
 
 	private void Start ( ) {
 		GenerateTargetNumber( );
+	}
+
+	/// <summary>
+	/// Called whenever the target number has been reached
+	/// </summary>
+	private void OnWin ( ) {
 	}
 
 	/// <summary>
@@ -83,17 +92,16 @@ public class GameManager : MonoBehaviour {
 			// If i is greater than the random step count, then we should be making red herrings
 			if (i > randomStepCount) {
 				// Generated a random number for the value
-				// Make sure it is not equal to the target number
-				// There might be better ways to do this but I need to do this fast
+				// Make sure no red herrings are equal to the final solution
 				do {
 					physicsNumber.Value = Random.Range(totalValueMin, totalValueMax + 1);
-				} while (physicsNumber.Value == sum);
+				} while (spawnedPhysicsNumberValues.Contains(physicsNumber.Value));
 
 				// Generate a random operation to apply to that number
 				float operationChance = Random.Range(0f, 1f);
-				if (operationChance < 0.3f) {
+				if (operationChance < 0.2f) {
 					physicsNumber.Operation = Operation.PLUS;
-				} else if (operationChance < 0.6f) {
+				} else if (operationChance < 0.4f) {
 					physicsNumber.Operation = Operation.MINUS;
 				}
 			} else {
@@ -102,7 +110,7 @@ public class GameManager : MonoBehaviour {
 				int randomNextNumber;
 				do {
 					randomNextNumber = Random.Range(totalValueMin, totalValueMax + 1);
-				} while (randomNextNumber == sum);
+				} while (randomNextNumber == sum || spawnedPhysicsNumberValues.Contains(randomNextNumber));
 
 				// Calculate the difference between the sum and the new number
 				// Then add the difference to the sum
@@ -117,6 +125,10 @@ public class GameManager : MonoBehaviour {
 					physicsNumber.Operation = (difference > 0 ? Operation.PLUS : Operation.MINUS);
 				}
 			}
+
+			// Add the values of the latest spawned physics number to the lists
+			spawnedPhysicsNumberValues.Add(physicsNumber.Value);
+			spawnedPhysicsNumberOperations.Add(physicsNumber.Operation);
 		}
 
 		// Set the target number once the last step has been generated
@@ -143,16 +155,20 @@ public class GameManager : MonoBehaviour {
 		// Set the original physics number to have no operation and just the value
 		physicsNumber.Operation = Operation.NONE;
 
+		if (physicsNumber.Value == TargetNumber) {
+			OnWin( );
+		}
+
 		return true;
 	}
 
 	/// <summary>
 	/// Try to merge two physics numbers together
 	/// </summary>
-	/// <param name="physicsNumber">The physics number that the values will be merged into</param>
-	/// <param name="other">The other physics number to merge with</param>
+	/// <param name="physicsNumber1">The physics number that the values will be merged into</param>
+	/// <param name="physicsNumber2">The other physics number to merge with</param>
 	/// <returns>true if the merge was successful, false otherwise</returns>
-	public bool MergePhysicsNumbers (PhysicsNumber physicsNumber, PhysicsNumber other) {
+	public bool MergePhysicsNumbers (PhysicsNumber physicsNumber1, PhysicsNumber physicsNumber2) {
 		// v = has value, o = has operation
 		// vo & v = T
 		// v & vo = T
@@ -167,77 +183,103 @@ public class GameManager : MonoBehaviour {
 
 		// If both the numbers have operators, then do not merge
 		// Similarly, if neither of the numbers have operators, then do not merge
-		if ((physicsNumber.Operation != Operation.NONE) == (other.Operation != Operation.NONE)) {
+		if ((physicsNumber1.Operation != Operation.NONE) == (physicsNumber2.Operation != Operation.NONE)) {
 			return false;
 		}
 
 		// Need to make sure that the physics number with the operation is the one applying it to the other one
 		// Order for subtraction/division is important
-		if (other.Operation != Operation.NONE) {
+		if (physicsNumber2.Operation != Operation.NONE) {
 			// If the other physics number has no value, then just merge the two and do no calculations
 			// If it does have a value, then use that operation on the other physics number
-			if (other.Value == 0) {
-				physicsNumber.Operation = other.Operation;
+			if (physicsNumber2.Value == 0) {
+				physicsNumber1.Operation = physicsNumber2.Operation;
 			} else {
-				switch (other.Operation) {
+				switch (physicsNumber2.Operation) {
 					case Operation.PLUS:
-						physicsNumber.Value += other.Value;
+						physicsNumber1.Value += physicsNumber2.Value;
+						// physicsNumber1.CalculationPath += $"+{physicsNumber2.Value}";
 						break;
 					case Operation.MINUS:
-						physicsNumber.Value -= other.Value;
+						physicsNumber1.Value -= physicsNumber2.Value;
+						// physicsNumber1.CalculationPath += $"-{physicsNumber2.Value}";
 						break;
 					case Operation.MULTIPLY:
-						physicsNumber.Value *= other.Value;
+						physicsNumber1.Value *= physicsNumber2.Value;
+						// physicsNumber1.CalculationPath += $"×{physicsNumber2.Value}";
 						break;
 					case Operation.DIVIDE:
 						// If the two numbers cannot be divided, then return false as these numbers cannot merge
-						if (physicsNumber.Value % other.Value != 0) {
+						if (physicsNumber1.Value % physicsNumber2.Value != 0) {
 							return false;
 						}
 
-						physicsNumber.Value /= other.Value;
-						break;
-				}
-			}
-		} else if (physicsNumber.Operation != Operation.NONE) {
-			// If the physics number has no value, then just merge the two and do no calculations
-			// If it does have a value, then use that operation with the physics number
-			if (physicsNumber.Value == 0) {
-				physicsNumber.Value = other.Value;
-			} else {
-				switch (physicsNumber.Operation) {
-					case Operation.PLUS:
-						physicsNumber.Value = other.Value + physicsNumber.Value;
-						break;
-					case Operation.MINUS:
-						physicsNumber.Value = other.Value - physicsNumber.Value;
-						break;
-					case Operation.MULTIPLY:
-						physicsNumber.Value = other.Value * physicsNumber.Value;
-						break;
-					case Operation.DIVIDE:
-						// If the two numbers cannot be divided, then return false as these numbers cannot merge
-						if (other.Value % physicsNumber.Value != 0) {
-							return false;
-						}
-
-						physicsNumber.Value = other.Value / physicsNumber.Value;
+						physicsNumber1.Value /= physicsNumber2.Value;
+						// physicsNumber1.CalculationPath += $"÷{physicsNumber2.Value}";
 						break;
 				}
 
 				// Reset the operation after it was used
-				physicsNumber.Operation = Operation.NONE;
+				physicsNumber1.Operation = Operation.NONE;
+
+				// If the physics number has no more value (it went negative or reached 0) then destroy it
+				// For right now, we want no negative numbers
+				// If it is not 0, then check to see if we have reached the target number
+				if (physicsNumber1.Value == 0) {
+					Destroy(physicsNumber1.gameObject);
+				} else if (physicsNumber1.Value == TargetNumber) {
+					OnWin( );
+				}
 			}
-		}
 
-		// If the physics number has no more value (it went negative or reached 0) then destroy it
-		// For right now, we want no negative numbers
-		if (physicsNumber.Operation == Operation.NONE && physicsNumber.Value == 0) {
-			Destroy(physicsNumber.gameObject);
-		}
+			// Destroy the other physics object because they have now been merged
+			Destroy(physicsNumber2.gameObject);
+		} else if (physicsNumber1.Operation != Operation.NONE) {
+			// If the physics number has no value, then just merge the two and do no calculations
+			// If it does have a value, then use that operation with the physics number
+			if (physicsNumber1.Value == 0) {
+				physicsNumber2.Operation = physicsNumber1.Operation;
+			} else {
+				switch (physicsNumber1.Operation) {
+					case Operation.PLUS:
+						physicsNumber2.Value += physicsNumber1.Value;
+						// physicsNumber2.CalculationPath += $"+{physicsNumber1.Value}";
+						break;
+					case Operation.MINUS:
+						physicsNumber2.Value -= physicsNumber1.Value;
+						// physicsNumber2.CalculationPath += $"-{physicsNumber1.Value}";
+						break;
+					case Operation.MULTIPLY:
+						physicsNumber2.Value *= physicsNumber1.Value;
+						// physicsNumber2.CalculationPath += $"×{physicsNumber1.Value}";
+						break;
+					case Operation.DIVIDE:
+						// If the two numbers cannot be divided, then return false as these numbers cannot merge
+						if (physicsNumber2.Value % physicsNumber1.Value != 0) {
+							return false;
+						}
 
-		// Destroy the other physics object because they have now been merged
-		Destroy(other.gameObject);
+						physicsNumber2.Value /= physicsNumber1.Value;
+						// physicsNumber2.CalculationPath += $"÷{physicsNumber1.Value}";
+						break;
+				}
+
+				// Reset the operation after it was used
+				physicsNumber2.Operation = Operation.NONE;
+
+				// If the physics number has no more value (it went negative or reached 0) then destroy it
+				// For right now, we want no negative numbers
+				// If it is not 0, then check to see if we have reached the target number
+				if (physicsNumber2.Value == 0) {
+					Destroy(physicsNumber2.gameObject);
+				} else if (physicsNumber2.Value == TargetNumber) {
+					OnWin( );
+				}
+			}
+
+			// Destroy the other physics object because they have now been merged
+			Destroy(physicsNumber1.gameObject);
+		}
 
 		return true;
 	}

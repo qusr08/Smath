@@ -21,15 +21,15 @@ public class CameraBounds : MonoBehaviour {
 
 	private void Start ( ) {
 		// Set the positions of the bounds
-		topBounds.position = new Vector3(0f, CameraHeight / 2f + 0.5f, 0f);
-		rightBounds.position = new Vector3(CameraWidth / 2f + 0.5f, 0f, 0f);
-		bottomBounds.position = new Vector3(0f, -CameraHeight / 2f - 0.5f, 0f);
-		leftBounds.position = new Vector3(-CameraWidth / 2f - 0.5f, 0f, 0f);
+		topBounds.position = new Vector3(0f, CameraHeight / 2f + 3f, 0f);
+		rightBounds.position = new Vector3(CameraWidth / 2f + 3f, 0f, 0f);
+		bottomBounds.position = new Vector3(0f, -CameraHeight / 2f - 3f, 0f);
+		leftBounds.position = new Vector3(-CameraWidth / 2f - 3f, 0f, 0f);
 
 		// Set the scales of the bounds
-		topBounds.localScale = new Vector3(CameraWidth, 1f, 1f);
-		rightBounds.localScale = new Vector3(1f, CameraHeight, 1f);
-		bottomBounds.localScale = new Vector3(CameraWidth, 1f, 1f);
-		leftBounds.localScale = new Vector3(1f, CameraHeight, 1f);
+		topBounds.localScale = new Vector3(CameraWidth + 12f, 6f, 1f);
+		rightBounds.localScale = new Vector3(6f, CameraHeight + 12f, 1f);
+		bottomBounds.localScale = new Vector3(CameraWidth + 12f, 6f, 1f);
+		leftBounds.localScale = new Vector3(6f, CameraHeight + 12f, 1f);
 	}
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class MousePoint : MonoBehaviour {
-	[SerializeField] private HingeJoint2D hingeJoint2D;
+	[SerializeField] private SpringJoint2D springJoint2D;
 	[SerializeField] private Camera mainCamera;
 	[SerializeField] private PhysicsNumber _lockedPhysicsNumber;
 	[Space]
@@ -20,7 +20,7 @@ public class MousePoint : MonoBehaviour {
 		set {
 			// Unconnect this mouse point from the previous locked physics number
 			if (_lockedPhysicsNumber != null) {
-				hingeJoint2D.connectedBody = null;
+				springJoint2D.connectedBody = null;
 				_lockedPhysicsNumber.RigidBody2D.velocity = mouseWorldVelocity * throwMultiplier;
 				_lockedPhysicsNumber.CanSmash = true;
 			}
@@ -30,9 +30,11 @@ public class MousePoint : MonoBehaviour {
 
 			// Connect this mouse to the new locked physics number
 			if (_lockedPhysicsNumber != null) {
-				hingeJoint2D.autoConfigureConnectedAnchor = true;
-				hingeJoint2D.connectedBody = _lockedPhysicsNumber.RigidBody2D;
-				hingeJoint2D.autoConfigureConnectedAnchor = false;
+				springJoint2D.autoConfigureConnectedAnchor = true;
+				springJoint2D.autoConfigureDistance = true;
+				springJoint2D.connectedBody = _lockedPhysicsNumber.RigidBody2D;
+				springJoint2D.autoConfigureConnectedAnchor = false;
+				springJoint2D.autoConfigureDistance = false;
 			}
 		}
 	}
