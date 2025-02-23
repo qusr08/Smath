@@ -8,10 +8,11 @@ public class GameManager : MonoBehaviour {
 	[SerializeField] private GameObject smashParticleSystemPrefab;
 	[SerializeField] private CameraController cameraController;
 	[SerializeField] private TextMeshProUGUI targetText;
+	[SerializeField] private MenuManager menuManager;
 	[Space]
 	[SerializeField] private int _targetNumber;
-	[SerializeField, Range(1, 20)] private int totalValueMin = 1;
-	[SerializeField, Range(1, 20)] private int totalValueMax = 20;
+	[SerializeField, Range(1, 20)] private int _targetNumberMin = 1;
+	[SerializeField, Range(1, 20)] private int _targetNumberMax = 20;
 	[SerializeField, Range(1, 5)] private int stepCountMin = 1;
 	[SerializeField, Range(1, 5)] private int stepCountMax = 3;
 	[SerializeField, Range(1, 5)] private int redHerringMin = 1;
@@ -20,6 +21,16 @@ public class GameManager : MonoBehaviour {
 
 	private List<int> spawnedPhysicsNumberValues = new List<int>( );
 	private List<Operation> spawnedPhysicsNumberOperations = new List<Operation>( );
+
+	/// <summary>
+	/// The minimum value of the target number 
+	/// </summary>
+	public int TargetNumberMin => _targetNumberMin;
+
+	/// <summary>
+	/// The maximum value of the target number
+	/// </summary>
+	public int TargetNumberMax => _targetNumberMax;
 
 	/// <summary>
 	/// The current target number of the game
@@ -33,14 +44,11 @@ public class GameManager : MonoBehaviour {
 		}
 	}
 
-	private void Start ( ) {
-		GenerateTargetNumber( );
-	}
-
 	/// <summary>
 	/// Called whenever the target number has been reached
 	/// </summary>
 	private void OnWin ( ) {
+		menuManager.SetMenuState((int) MenuState.WIN);
 	}
 
 	/// <summary>
@@ -95,7 +103,7 @@ public class GameManager : MonoBehaviour {
 				// Generated a random number for the value
 				// Make sure no red herrings are equal to the final solution
 				do {
-					physicsNumber.Value = Random.Range(totalValueMin, totalValueMax + 1);
+					physicsNumber.Value = Random.Range(TargetNumberMin, TargetNumberMax + 1);
 				} while (spawnedPhysicsNumberValues.Contains(physicsNumber.Value));
 
 				// Generate a random operation to apply to that number
@@ -110,7 +118,7 @@ public class GameManager : MonoBehaviour {
 				// Make sure the generated number is not the same thing as the current sum (as in the difference will be 0)
 				int randomNextNumber;
 				do {
-					randomNextNumber = Random.Range(totalValueMin, totalValueMax + 1);
+					randomNextNumber = Random.Range(TargetNumberMin, TargetNumberMax + 1);
 				} while (randomNextNumber == sum || spawnedPhysicsNumberValues.Contains(randomNextNumber));
 
 				// Calculate the difference between the sum and the new number

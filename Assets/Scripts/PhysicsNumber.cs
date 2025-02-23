@@ -9,6 +9,7 @@ public enum Operation {
 public class PhysicsNumber : MonoBehaviour {
 	[SerializeField] private MousePoint mousePoint;
 	[SerializeField] private GameManager gameManager;
+	[SerializeField] private MenuManager menuManager;
 	[Space]
 	[SerializeField] private List<Sprite> numberSprites;
 	[SerializeField] private List<Sprite> operationSprites;
@@ -126,6 +127,7 @@ public class PhysicsNumber : MonoBehaviour {
 	private void Awake ( ) {
 		mousePoint = FindObjectOfType<MousePoint>( );
 		gameManager = FindObjectOfType<GameManager>( );
+		menuManager = FindObjectOfType<MenuManager>( );
 	}
 
 	private void Start ( ) {
@@ -134,6 +136,11 @@ public class PhysicsNumber : MonoBehaviour {
 	}
 
 	private void OnCollisionEnter2D (Collision2D collision) {
+		// If the game is not currently being played right now, then do not collide
+		if (menuManager.MenuState != MenuState.GAME) {
+			return;
+		}
+
 		// If this physics number was not just thrown by the player, it cannot smash into anything
 		if (!CanSmash) {
 			return;
@@ -160,12 +167,24 @@ public class PhysicsNumber : MonoBehaviour {
 	}
 
 	private void OnMouseDown ( ) {
+		// If the game is not currently being played right now, then do not collide
+		if (menuManager.MenuState != MenuState.GAME) {
+			return;
+		}
+
 		mousePoint.LockedPhysicsNumber = this;
 	}
 
 	private void OnMouseUp ( ) {
 		mousePoint.LockedPhysicsNumber = null;
 	}
+
+	/*private void Update ( ) {
+		// Used on the main menu to despawn physics numbers when they fall too low 
+		if (transform.position.y < -40f) {
+			Destroy(gameObject);
+		}
+	}*/
 
 	/// <summary>
 	/// Update the offset of the operation object from the center of this game object
