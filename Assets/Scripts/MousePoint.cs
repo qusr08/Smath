@@ -6,19 +6,11 @@ public class MousePoint : MonoBehaviour {
 	[SerializeField] private HingeJoint2D hingeJoint2D;
 	[SerializeField] private Camera mainCamera;
 	[SerializeField] private PhysicsNumber _lockedPhysicsNumber;
+	[Space]
+	[SerializeField, Range(0.5f, 5f)] private float throwMultiplier = 3f;
 
-	// private Vector3 lastMouseWorldPosition;
-	// private Vector3 mouseWorldVelocity;
-
-	/// <summary>
-	/// The mouse's position in world space
-	/// </summary>
-	public Vector3 MouseWorldPosition {
-		get {
-			Vector3 mouseWorldPosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
-			return new Vector3(mouseWorldPosition.x, mouseWorldPosition.y, 0);
-		}
-	}
+	private Vector3 mouseWorldPositionFollower;
+	private Vector3 mouseWorldVelocity;
 
 	/// <summary>
 	/// The physics number currently locked to this mouse point
@@ -28,9 +20,8 @@ public class MousePoint : MonoBehaviour {
 		set {
 			// Unconnect this mouse point from the previous locked physics number
 			if (_lockedPhysicsNumber != null) {
-				/// TO DO: Need to include the velocity into the calculation
-				// _lockedPhysicsNumber.RigidBody2D.velocity = mouseWorldVelocity;
 				hingeJoint2D.connectedBody = null;
+				_lockedPhysicsNumber.RigidBody2D.velocity = mouseWorldVelocity * throwMultiplier;
 			}
 
 			_lockedPhysicsNumber = value;
@@ -38,24 +29,27 @@ public class MousePoint : MonoBehaviour {
 
 			// Connect this mouse to the new locked physics number
 			if (_lockedPhysicsNumber != null) {
+				hingeJoint2D.autoConfigureConnectedAnchor = true;
 				hingeJoint2D.connectedBody = _lockedPhysicsNumber.RigidBody2D;
-				/// TO DO: Need to fix to incorperate rotation into the calculation
-				// hingeJoint2D.connectedAnchor = MouseWorldPosition - _lockedPhysicsNumber.transform.position;
+				hingeJoint2D.autoConfigureConnectedAnchor = false;
 			}
 		}
 	}
 
 	private void Awake ( ) {
 		mainCamera = Camera.main;
-		// lastMouseWorldPosition = MouseWorldPosition;
 	}
 
 	private void Update ( ) {
-		// Set this mouse point to the position of the mouse
-		Vector3 currentMousePosition = MouseWorldPosition;
-		transform.position = currentMousePosition;
+		// Calculate the current position of the mouse in world space
+		Vector3 mouseWorldPosition = (Vector2) mainCamera.ScreenToWorldPoint(Input.mousePosition);
 
-		// mouseWorldVelocity = currentMousePosition - lastMouseWorldPosition;
-		// lastMouseWorldPosition = currentMousePosition;
+		// Update the mouse follower position
+		mouseWorldPositionFollower = Vector3.SmoothDamp(mouseWorldPositionFollower, mouseWorldPosition, ref mouseWorldVelocity, 0.2f, Mathf.Infinity, Time.deltaTime);
+
+		Debug.Log(mouseWorldVelocity);
+
+		// Set this mouse point to the position of the mouse
+		transform.position = mouseWorldPosition;
 	}
 }
