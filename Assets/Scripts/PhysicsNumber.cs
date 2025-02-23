@@ -8,6 +8,7 @@ public enum Operation {
 
 public class PhysicsNumber : MonoBehaviour {
 	[SerializeField] private MousePoint mousePoint;
+	[SerializeField] private GameManager gameManager;
 	[Space]
 	[SerializeField] private List<Sprite> numberSprites;
 	[SerializeField] private List<Sprite> operationSprites;
@@ -21,8 +22,9 @@ public class PhysicsNumber : MonoBehaviour {
 	[SerializeField] private PolygonCollider2D operationPolygonCollider;
 	[SerializeField] private GameObject operationGameObject;
 	[Space]
-	[SerializeField, Range(-1, 999)] private int _value;
+	[SerializeField, Range(0, 999)] private int _value;
 	[SerializeField] private Operation _operation;
+	public bool CanSmash;
 	[SerializeField, Range(0f, 1f)] private float digitGap = 0.2f;
 	[SerializeField, Range(0f, 10f)] private float smashSpeed = 4f;
 
@@ -42,9 +44,11 @@ public class PhysicsNumber : MonoBehaviour {
 
 			// Update the sprite renderers for each place of the number
 			int digitIndex = 0;
+			bool hasFoundValue = false;
 			for (int place = 100; place >= 1; place /= 10) {
 				// If the value has a digit at the current place number, then set the sprite of the number
-				if ((_value / place) % 10 > 0) {
+				// This will make sure the value is placed at the right spot within the digit sprite renderers
+				if (hasFoundValue || (_value / place) % 10 > 0) {
 					// Set the sprite of this number based on the new value
 					digitSpriteRenderers[digitIndex].enabled = true;
 					digitSpriteRenderers[digitIndex].sprite = numberSprites[(_value / place) % 10];
@@ -55,6 +59,7 @@ public class PhysicsNumber : MonoBehaviour {
 					digitPolygonColliders[digitIndex] = digitGameObjects[digitIndex].AddComponent<PolygonCollider2D>( );
 
 					digitIndex++;
+					hasFoundValue = true;
 				}
 			}
 
@@ -109,20 +114,37 @@ public class PhysicsNumber : MonoBehaviour {
 
 	private void Awake ( ) {
 		mousePoint = FindObjectOfType<MousePoint>( );
+		gameManager = FindObjectOfType<GameManager>( );
 	}
 
 	private void Start ( ) {
-		Value = Value;
 		Operation = Operation;
+		Value = Value;
 	}
 
 	private void OnCollisionEnter2D (Collision2D collision) {
+		// If this physics number was not just thrown by the player, it cannot smash into anything
+		if (!CanSmash) {
+			return;
+		}
+
+		// Since this shape has collided with something, it can no longer smash into anything else afterwards
+		CanSmash = false;
+
 		// If this physics number speed is moving too slow to smash, then do nothing
 		if (RigidBody2D.velocity.magnitude < smashSpeed) {
 			return;
 		}
 
-		Debug.Log("Smash");
+		// If the collision was with another physics number, then try to merge the two of them together
+		// If the collision was with the bounds of the screen, try to break this number apart
+		if ((LayerMask.GetMask("Physics Number") & (1 << collision.gameObject.layer)) > 0) {
+			Debug.Log("Smash");
+			gameManager.MergePhysicsNumbers(this, collision.transform.GetComponent<PhysicsNumber>( ));
+		} else if ((LayerMask.GetMask("Bounds") & (1 << collision.gameObject.layer)) > 0) {
+			Debug.Log("Split");
+			gameManager.SplitPhysicsNumber(this);
+		}
 	}
 
 	private void OnMouseDown ( ) {
@@ -138,7 +160,7 @@ public class PhysicsNumber : MonoBehaviour {
 	/// </summary>
 	private void UpdateOffsets ( ) {
 		// If there is no value, then the operation should be right in the center of the object
-		if (Value <= 0) {
+		if (Value == 0) {
 			operationGameObject.transform.localPosition = Vector3.zero;
 			return;
 		}

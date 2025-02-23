@@ -22,6 +22,7 @@ public class MousePoint : MonoBehaviour {
 			if (_lockedPhysicsNumber != null) {
 				hingeJoint2D.connectedBody = null;
 				_lockedPhysicsNumber.RigidBody2D.velocity = mouseWorldVelocity * throwMultiplier;
+				_lockedPhysicsNumber.CanSmash = true;
 			}
 
 			_lockedPhysicsNumber = value;

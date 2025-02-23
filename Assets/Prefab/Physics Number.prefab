@@ -50,6 +50,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mousePoint: {fileID: 0}
+  gameManager: {fileID: 0}
   numberSprites:
   - {fileID: -508219990, guid: 323463c855b38df488fa2b8b4064e73e, type: 3}
   - {fileID: 1084632380, guid: 323463c855b38df488fa2b8b4064e73e, type: 3}
@@ -69,10 +70,10 @@ MonoBehaviour:
   - {fileID: -1138264693, guid: 323463c855b38df488fa2b8b4064e73e, type: 3}
   operationColors:
   - {r: 0.122641504, g: 0.122641504, b: 0.122641504, a: 1}
-  - {r: 0.8301887, g: 0.77453226, b: 0.19188325, a: 1}
+  - {r: 0.8901961, g: 0.8235294, b: 0.10980392, a: 1}
   - {r: 0.19215682, g: 0.3962378, b: 0.83137256, a: 1}
-  - {r: 0.83137256, g: 0.19215682, b: 0.60402274, a: 1}
-  - {r: 0.19215682, g: 0.83137256, b: 0.33831173, a: 1}
+  - {r: 0.89411765, g: 0.1882353, b: 0.6431373, a: 1}
+  - {r: 0.22745098, g: 0.84705883, b: 0.36862746, a: 1}
   _rigidBody2D: {fileID: 7467577934022662456}
   digitSpriteRenderers:
   - {fileID: 858249192290292466}
@@ -91,8 +92,9 @@ MonoBehaviour:
   operationGameObject: {fileID: 3489044422165606993}
   _value: 0
   _operation: 0
+  CanSmash: 0
   digitGap: 0.2
-  smashSpeed: 3
+  smashSpeed: 5
 --- !u!50 &7467577934022662456
 Rigidbody2D:
   serializedVersion: 4
@@ -118,7 +120,7 @@ Rigidbody2D:
     m_Bits: 0
   m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 0
 --- !u!1 &3489044422165606993
 GameObject:
